@@ -17,22 +17,24 @@ var Handler = function(app) {
  */
 Handler.prototype.entry = function(msg, session, next) {
     var self = this;
-    console.log('connector.entryHandler.entry~');
+
+    // get uid by query database with username, password
+
     var uid = 1;
-    // session.set('uid', 1);
-    session.bind(uid);
+    session.bind(uid); // this uid is use for push
     session.pushAll();
 
     var channel = self.channelService.getChannel('global', true);
     var sid = self.app.getServerId();
 
-    console.log('uid:', uid);
+    // push join message to all
     var param = {
         route: 'onPush',
         user: 'hello test2'
     };
     channel.pushMessage(param);
 
+    // add new user to channel
     if (!!channel) {
         channel.add(uid, sid);
     }
@@ -41,21 +43,18 @@ Handler.prototype.entry = function(msg, session, next) {
         code: 200,
         msg: 'this Game server is ok.'
     });
-
 };
 
 Handler.prototype.test = function(msg, session, next) {
-    console.log('connector.entryHandler.test~');
-
+    var channel = this.channelService.getChannel('global');
     var param = {
         route: 'onPush',
         msg: '111111111111111',
         from: '22222222222222',
         target: '3333333333333333'
     };
-    var channel = this.channelService.getChannel('global');
 
-    //the target is all users
+    // push message to all users
     channel.pushMessage(param);
 
     next(null, {
